@@ -1,0 +1,107 @@
+version: '3.7'
+services:
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:5.5.2
+    hostname: zookeeper
+    container_name: zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+    # healthcheck:
+    #   test: ["CMD", "bash", "-c", "echo ruok | nc localhost 2181 | grep imok"]
+    #   start_period: 30s
+
+  kafka1:
+    image: confluentinc/cp-server:5.5.2
+    hostname: kafka1
+    container_name: kafka1
+    ports:
+      - "3201:3201"
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_LISTENERS: INTERNAL://kafka1:9092,EXTERNAL://0.0.0.0:3201
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka1:9092,EXTERNAL://localhost:3201
+      KAFKA_DELETE_TOPIC_ENABLE: 'true'
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'false'
+      KAFKA_DEFAULT_REPLICATION_FACTOR: 2
+      KAFKA_LOG4J_ROOT_LOGLEVEL: INFO
+      # Confluent Metrics Reporter
+      KAFKA_METRIC_REPORTERS: io.confluent.metrics.reporter.ConfluentMetricsReporter
+      CONFLUENT_METRICS_REPORTER_TOPIC_REPLICAS: 2
+      CONFLUENT_METRICS_REPORTER_BOOTSTRAP_SERVERS: kafka1:9092,kafka2:9092,kafka3:9092
+      CONFLUENT_METRICS_REPORTER_TOPIC_CREATE: 'true'
+
+    # healthcheck:
+    #   test: ["CMD", "nc", "127.0.0.1", "9092"]
+    #   start_period: 30s
+
+  kafka2:
+    image: confluentinc/cp-server:5.5.2
+    hostname: kafka2
+    container_name: kafka2
+    ports:
+      - "3202:3202"
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_BROKER_ID: 2
+      KAFKA_LISTENERS: INTERNAL://kafka2:9092,EXTERNAL://0.0.0.0:3202
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka2:9092,EXTERNAL://localhost:3202
+      KAFKA_DELETE_TOPIC_ENABLE: 'true'
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'false'
+      KAFKA_DEFAULT_REPLICATION_FACTOR: 2
+      KAFKA_LOG4J_ROOT_LOGLEVEL: INFO
+      # Confluent Metrics Reporter
+      KAFKA_METRIC_REPORTERS: io.confluent.metrics.reporter.ConfluentMetricsReporter
+      CONFLUENT_METRICS_REPORTER_TOPIC_REPLICAS: 2
+      CONFLUENT_METRICS_REPORTER_BOOTSTRAP_SERVERS: kafka1:9092,kafka2:9092,kafka3:9092
+      CONFLUENT_METRICS_REPORTER_TOPIC_CREATE: 'true'
+
+    # healthcheck:
+    #   test: ["CMD", "nc", "127.0.0.1", "9092"]
+    #   start_period: 30s
+
+  kafka3:
+    image: confluentinc/cp-server:5.5.2
+    hostname: kafka3
+    container_name: kafka3
+    ports:
+      - "3203:3203"
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_BROKER_ID: 3
+      KAFKA_LISTENERS: INTERNAL://kafka3:9092,EXTERNAL://0.0.0.0:3203
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka3:9092,EXTERNAL://localhost:3203
+      KAFKA_DELETE_TOPIC_ENABLE: 'true'
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'false'
+      KAFKA_DEFAULT_REPLICATION_FACTOR: 2
+      KAFKA_LOG4J_ROOT_LOGLEVEL: INFO
+      # Confluent Metrics Reporter
+      KAFKA_METRIC_REPORTERS: io.confluent.metrics.reporter.ConfluentMetricsReporter
+      CONFLUENT_METRICS_REPORTER_TOPIC_REPLICAS: 2
+      CONFLUENT_METRICS_REPORTER_BOOTSTRAP_SERVERS: kafka1:9092,kafka2:9092,kafka3:9092
+      CONFLUENT_METRICS_REPORTER_TOPIC_CREATE: 'true'
+
+    # healthcheck:
+    #   test: ["CMD", "nc", "127.0.0.1", "9092"]
+    #   start_period: 30s
+
+  logstash:
+    image: docker.elastic.co/logstash/logstash:7.6.1
+    hostname: logstash
+    container_name: logstash
+    volumes:
+      - ./logstash-config/:/usr/share/logstash/config/
+      - ./logstash-pipeline/:/usr/share/logstash/pipeline/
