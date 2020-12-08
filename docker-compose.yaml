@@ -99,7 +99,7 @@ services:
     #   start_period: 30s
 
   logstash:
-    image: docker.elastic.co/logstash/logstash:7.6.1
+    image: docker.elastic.co/logstash/logstash:7.10.0
     hostname: logstash
     container_name: logstash
     volumes:

@@ -4,6 +4,8 @@
 
 ### Run the bundle
 
+Starts docker-compose environment with 3 KB, 1 ZK and 1 Logstash
+
 ```bash
 ./run.sh
 ```
